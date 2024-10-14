@@ -94,11 +94,12 @@ def get():
         
         except:
             print("DONE  "*10)
+            break  
 
     list = [{"subject":list_codes},{"dis":list_disc}]
     data = pd.DataFrame(list, columns=["subject","dis"])
-    # driver.quit()
+    driver.quit()
     return data    
 
-if __name__ == __main__ :
+if __name__ == '__main__' :
     get()
