@@ -20,12 +20,10 @@ def get():
 
     list_codes = []
     list_disc = []
-
-    # get first page
+    
     driver.get('https://web.reg.tu.ac.th/registrar/class_info.asp?lang=en')
     web_link = "https://web.reg.tu.ac.th/registrar/"
-    # remember first page
-    # seach click
+    
     ele = WebDriverWait(driver, 20).until(
         EC.element_to_be_clickable((By.XPATH, "/html/body/table/tbody/tr[1]/td[2]/table/tbody/tr[7]/td[2]/table/tbody/tr/td/font[3]/input"))
     )
@@ -38,20 +36,18 @@ def get():
             extracted_texts = []
             time.sleep(1)
 
-            # Find the link each subject
             rows = driver.find_elements(By.XPATH, "//tr[@valign='TOP']")
             for row in rows:
                 link_element = row.find_element(By.XPATH, ".//a[contains(@onclick, 'window.open')]")
-
                 
                 onclick_attribute = link_element.get_attribute("onclick")
 
-                # Use regex to extract the URL from the 'onclick' attribute
+                # Use regex 
                 url_pattern = re.search(r"window\.open\('([^']+)'", onclick_attribute)
 
-                extracted_url = url_pattern.group(1)  # Extract the URL
-                pyperclip.copy(extracted_url)  # Copy the URL to the clipboard
-                extracted_texts.append(extracted_url)  # Append the URL to the list
+                extracted_url = url_pattern.group(1)  
+                pyperclip.copy(extracted_url)  
+                extracted_texts.append(extracted_url)  
 
                 # print(f"Extracted URL: {extracted_url}")
 
@@ -59,7 +55,6 @@ def get():
             driver.execute_script("window.open('');")
             driver.switch_to.window(driver.window_handles[1])
 
-            #loop URL to open and extract data
             for i in extracted_texts:
                 link = web_link+i
                 # print(link)
