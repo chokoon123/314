@@ -59,18 +59,19 @@ def get():
                 link = web_link+i
                 # print(link)
                 driver.get(link)
-                time.sleep(3)
+                time.sleep(3)           
+           
                 codes = driver.find_elements(By.XPATH, "/html/body/table[1]/tbody/tr/td[2]/table/tbody/tr[1]/td[1]/b/font")
-
                 for code in codes:
-                    print(code.text)
-                list_codes.append(codes)
+                    a = code.text
+                    # print(a)
+                    list_codes.append(a)
 
                 disc = driver.find_elements(By.XPATH, "/html/body/table[2]/tbody/tr/td[2]/font[2]")
                 for i in disc:
-                    # print(i.text)
-                    pass
-                list_disc.append(disc)
+                    a = i.text
+                    # print(a)
+                    list_disc.append(a)
 
             #next page
             driver.switch_to.window(first_tab)
@@ -91,10 +92,10 @@ def get():
             print("DONE  "*10)
             break  
 
-    list = [{"subject":list_codes},{"dis":list_disc}]
-    data = pd.DataFrame(list, columns=["subject","dis"])
+    dict = {"course":list_codes,"description":list_disc}
+    df = pd.DataFrame(dict)
     driver.quit()
-    return data    
+    return df    
 
 if __name__ == '__main__' :
     get()
