@@ -165,12 +165,25 @@ elif st.session_state["page"] == "results":
                     matches_str = "; ".join([", ".join(match) for match in matches])                    #วิชาที่เทียบโอน
                     text_2 = cuurent_code + " : " + matches_str                                         #วิชาปัจจุบัน ที่เทียบโอน
                     
-                    
-                    st.subheader(text_2)
-                    st.write(f"**Description:** {item['description']}")                                 #desc ของวิชาที่แรก
-                    st.write(f"**Description:** {filtered['description'].iloc[0]}")                     #desc ของวิชาที่สอง
-                    # st.write(f"**Faculty:** {item['faculty']}")
-                index += 1
+                    # Styled Card Output
+                    with col:
+                        st.markdown(
+                            f"""
+                            <div style="border: 1px solid #ddd; border-radius: 10px; padding: 10px; margin: 10px; background-color: #f9f9f9;">
+                                <h5 style="color: #ff4b4b;">{item["code"]}</h5>
+                                <p><b>Description:</b> {item["description"]}</p>
+                                <p><b>Description:</b> {filtered['description'].iloc[0]}</p>
+                                <p><b>Matches:</b> {matches_str}</p>
+                            </div>
+                            """,
+                            unsafe_allow_html=True,
+                        )
+                    index += 1
+                #     st.subheader(text_2)
+                #     st.write(f"**Description:** {item['description']}")                                 #desc ของวิชาที่แรก
+                #     st.write(f"**Description:** {filtered['description'].iloc[0]}")                     #desc ของวิชาที่สอง
+                #     # st.write(f"**Faculty:** {item['faculty']}")
+                # index += 1
 
 
 
