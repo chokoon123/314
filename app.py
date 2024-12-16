@@ -4,7 +4,7 @@ st.set_page_config(
     page_title="Faculty Selector",
     page_icon="book",
     layout="wide",
-    initial_sidebar_state="collapsed",
+    initial_sidebar_state="expanded",
 )
 
 # Faculty information
@@ -37,8 +37,8 @@ faculty_1 = st.sidebar.selectbox("Choose Faculty 1:", list(faculty_data.keys()),
 faculty_2 = st.sidebar.selectbox("Choose Faculty 2:", list(faculty_data.keys()), key="faculty_2")
 
 # Header
-st.title("Thammasat University Faculties")
-st.write("Explore the faculties below by clicking on their respective websites.")
+st.title("Thammasat University Credit Bank")
+st.write("Explore the faculties below by clicking on their websites.")
 
 # Split faculties into two groups for layout
 faculties_top = list(faculty_data.items())[:3]  # First 3 faculties
@@ -55,27 +55,34 @@ st.markdown(
         text-align: center;
         margin-bottom: 15px;
         box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
-        width: 250px; /* Fixed width for uniform box size */
-        height: 350px; /* Fixed height for uniform box size */
+        width: 300px; /* Fixed width for uniform box size */
+        height: 400px; /* Fixed height for uniform box size */
         display: inline-block;
         vertical-align: top;
     }
     .faculty-image {
         border-radius: 10px;
+        align-items: center;
         width: 200px; /* Fixed width for uniform image size */
-        height: 150px; /* Fixed height for uniform image size */
-        object-fit: cover; /* Ensures images maintain aspect ratio */
+        height: 200px; /* Fixed height for uniform image size */
+        object-fit: fit; /* Ensures images maintain aspect ratio */
         margin-bottom: 10px;
     }
-    h4 {
-        margin-top: 10px;
-        font-size: 16px;
+    .divider {
+        height: 1.5px;
+        background-color: #d9d9d9;
+        margin: 10px 0;
+    }
+    .faculty-name {
+        font-size: 20px;
+        font-weight: bold;
+        margin: 10px 0;
         color: #333;
     }
     a {
         text-decoration: none;
         color: #007BFF;
-        font-weight: bold;
+        font-weight: bold;  
     }
     </style>
     """,
@@ -90,8 +97,9 @@ for i, (faculty, data) in enumerate(faculty_data.items()):
             f"""
             <div class="faculty-box">
                 <img src="{data['image']}" alt="{faculty}" class="faculty-image" />
-                <h4>{faculty}</h4>
-                <a href="{data['website']}" target="_blank">Visit {faculty} Website</a>
+                <div class="faculty-name">{faculty}</div>
+                <div class="divider"></div>
+                <a href="{data['website']}" target="_blank">Visit Website</a>
             </div>
             """,
             unsafe_allow_html=True,
