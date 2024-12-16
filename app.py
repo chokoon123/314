@@ -1,12 +1,20 @@
 import streamlit as st
 
 st.set_page_config(
-    page_title="Faculty Selector",
+    page_title="DSI314",
     page_icon="book",
     layout="wide",
-    initial_sidebar_state="collapsed",
+    initial_sidebar_state="auto",
 )
 
+if "page" not in st.session_state:
+    st.session_state["page"] = "home"
+
+# ตัวแปร
+if "faculty_1" not in st.session_state:
+    st.session_state["faculty_1"] = None
+if "faculty_2" not in st.session_state:
+    st.session_state["faculty_2"] = None
 
 faculty_data = {
     "College of Interdisciplinary Studies": {
@@ -31,68 +39,74 @@ faculty_data = {
     },
 }
 
-# Sidebar: Two dropdowns for faculty selection
-st.sidebar.header("Select Faculties")
-faculty_1 = st.sidebar.selectbox("Choose Faculty 1:", list(faculty_data.keys()), key="faculty_1")
-faculty_2 = st.sidebar.selectbox("Choose Faculty 2:", list(faculty_data.keys()), key="faculty_2")
+if st.session_state["page"] == "home":
 
-# Header
-st.title("Thammasat University Faculties")
-st.write("Explore the faculties below by clicking on their respective websites.")
+    st.title("Thammasat University Faculties")
+    st.write("Explore the faculties below by clicking on their respective websites.")
 
-# Split faculties into two groups for layout
-faculties_top = list(faculty_data.items())[:3]  # First 3 faculties
-faculties_bottom = list(faculty_data.items())[3:]  # Remaining 2 faculties
+    faculties_top = list(faculty_data.items())[:3]  # First 3 faculties
+    faculties_bottom = list(faculty_data.items())[3:]  # Remaining 2 faculties
 
-# CSS for uniform box and image sizes
-st.markdown(
-    """
-    <style>
-    .faculty-box {
-        border: 2px solid #d9d9d9;
-        border-radius: 15px;
-        padding: 15px;
-        text-align: center;
-        margin-bottom: 15px;
-        box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
-        width: 250px; /* Fixed width for uniform box size */
-        height: 350px; /* Fixed height for uniform box size */
-        display: inline-block;
-        vertical-align: top;
-    }
-    .faculty-image {
-        border-radius: 10px;
-        width: 200px; /* Fixed width for uniform image size */
-        height: 150px; /* Fixed height for uniform image size */
-        object-fit: cover; /* Ensures images maintain aspect ratio */
-        margin-bottom: 10px;
-    }
-    h4 {
-        margin-top: 10px;
-        font-size: 16px;
-        color: #333;
-    }
-    a {
-        text-decoration: none;
-        color: #007BFF;
-        font-weight: bold;
-    }
-    </style>
-    """,
-    unsafe_allow_html=True,
-)
+    st.markdown(
+        """
+        <style>
+        .faculty-box {
+            border: 2px solid #d9d9d9;
+            border-radius: 15px;
+            padding: 15px;
+            text-align: center;
+            margin-bottom: 15px;
+            box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
+            width: 250px; /* Fixed width for uniform box size */
+            height: 350px; /* Fixed height for uniform box size */
+            display: inline-block;
+            vertical-align: top;
+        }
+        .faculty-image {
+            border-radius: 10px;
+            width: 200px; /* Fixed width for uniform image size */
+            height: 150px; /* Fixed height for uniform image size */
+            object-fit: cover; /* Ensures images maintain aspect ratio */
+            margin-bottom: 10px;
+        }
+        h4 {
+            margin-top: 10px;
+            font-size: 16px;
+            color: #333;
+        }
+        a {
+            text-decoration: none;
+            color: #007BFF;
+            font-weight: bold;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
 
-# Display faculties in consistent boxes
-cols = st.columns(3)
-for i, (faculty, data) in enumerate(faculty_data.items()):
-    with cols[i % 3]:  # Ensure wrapping after every 3 items
-        st.markdown(
-            f"""
-            <div class="faculty-box">
-                <img src="{data['image']}" alt="{faculty}" class="faculty-image" />
-                <h4>{faculty}</h4>
-                <a href="{data['website']}" target="_blank">Visit {faculty} Website</a>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
+    # Display faculties in consistent boxes
+    cols = st.columns(3)
+    for i, (faculty, data) in enumerate(faculty_data.items()):
+        with cols[i % 3]:  # Ensure wrapping after every 3 items
+            st.markdown(
+                f"""
+                <div class="faculty-box">
+                    <img src="{data['image']}" alt="{faculty}" class="faculty-image" />
+                    <h4>{faculty}</h4>
+                    <a href="{data['website']}" target="_blank">Visit {faculty} Website</a>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
+    faculty_1 = st.sidebar.selectbox("Choose your current faculty ", list(faculty_data.keys()), key="faculty_1")
+    faculty_2 = st.sidebar.selectbox("Choose your interest faculty ", list(faculty_data.keys()), key="faculty_2")
+
+    if st.sidebar.button("Go to Results"):
+        st.session_state["faculty_1"] = faculty_1
+        st.session_state["faculty_2"] = faculty_2
+        st.session_state["page"] = "results"
+        st.experimental_rerun()
+
+elif st.session_state["page"] == "results":
+    st.title("Selected Faculties")
+
