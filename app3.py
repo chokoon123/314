@@ -1,35 +1,173 @@
 import streamlit as st
+import ast 
+import pandas as pd
+import re
 
-# Initialize session state if it doesn't exist
-if 'page' not in st.session_state:
-    st.session_state.page = 'Page 1'
+df = pd.read_csv("final_1.csv",usecols=["code","description","faculty","valid_pairs1","valid_pairs2","valid_pairs3"])
+
+# Page Configuration
+st.set_page_config(
+    page_title="Faculty Selector",
+    page_icon="book",
+    layout="wide",
+    initial_sidebar_state="auto",
+)
+
+# Initialize session state variables
+if "page" not in st.session_state:
+    st.session_state.page = "home"
 
 
-# Create a sidebar navigation
-st.sidebar.title('Navigation')
-page = st.sidebar.selectbox('Select Page', ['Page 1', 'Page 2'])
-st.session_state.page = page
+# Faculty Data
+faculty_data = {
+    "College of Interdisciplinary Studies": {
+        "image": "https://upload.wikimedia.org/wikipedia/commons/1/19/%E0%B8%A7%E0%B8%B4%E0%B8%97%E0%B8%A2%E0%B8%B2%E0%B8%A5%E0%B8%B1%E0%B8%A2%E0%B8%AA%E0%B8%AB%E0%B8%A7%E0%B8%B4%E0%B8%97%E0%B8%A2%E0%B8%B2%E0%B8%81%E0%B8%B2%E0%B8%A3.jpg",
+        "website": "https://cis.tu.ac.th/cis-eng",
+    },
+    "Science and Technology": {
+        "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSZdRQej9m6Tlx0KGZaCzNXUqrDsOIWqQsZVA&s",
+        "website": "https://sci.tu.ac.th/",
+    },
+    "Sirindhorn International Institute of Technology": {
+        "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSjLQIlqpmsRo9UzpR7ypkwqokP-kUt7bFIIA&s",
+        "website": "https://www.siit.tu.ac.th/",
+    },
+    "College of Innovation": {
+        "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT95Jv2GVzes_Q4AMgJ_175P0HKE3Ufy6g5QA&s",
+        "website": "https://www.citu.tu.ac.th/eng/",
+    },
+    "Thammasat School of Engineering": {
+        "image": "https://yt3.googleusercontent.com/ytc/AIdro_mc0QZyRM4AVHG72dReblab2bmtArgkDErS_FHewIoS4jY=s900-c-k-c0x00ffffff-no-rj",
+        "website": "https://en.engr.tu.ac.th/",
+    },
+}
 
-# Define page content
-if st.session_state.page == 'Page 1':
-    st.title('Page 1')
+# Handle Query Params for Navigation
+# query_params = st.query_params
+# if "page" in query_params:
+#     st.session_state["page"] = query_params["page"]
+
+# Page Logic
+if st.session_state["page"] == "home":
+    list_sub = list(faculty_data.keys())
+    list_sub.append(" ")
+    list_sub = list_sub[::-1]
+    # Main Page
+    st.title("Thammasat University Faculties")
+    st.write("Explore the faculties below by clicking on their respective websites.")
+
+    # Sidebar for Faculty Selection
+    st.sidebar.header("Faculty Selection")
+    faculty_1 = st.sidebar.selectbox(
+        "Choose your current faculty",
+        list_sub,
+        key="faculty_1",
+    )
+    faculty_2 = st.sidebar.selectbox(
+        "Choose your interest faculty",
+        list_sub,
+        key="faculty_2",
+
+    )
+
+    # Button to proceed to the results page
+    if faculty_2 and faculty_1 in faculty_data:
+        # st.query_params.update(page="results")
+        if "faculty_1" not in st.session_state:
+            st.session_state.faculty_1 = faculty_1
+        
+        if "faculty_2" not in st.session_state:
+            st.session_state.faculty_2 = faculty_2
+        st.session_state["page"] = "results"
+
+    # Display faculties
+    cols = st.columns(3)
+    for i, (faculty, data) in enumerate(faculty_data.items()):
+        with cols[i % 3]:
+            st.markdown(
+                f"""
+                <div class="faculty-box">
+                    <img src="{data['image']}" alt="{faculty}" class="faculty-image" />
+                    <h4>{faculty}</h4>
+                    <a href="{data['website']}" target="_blank">Visit {faculty} Website</a>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
+
+elif st.session_state["page"] == "results":
+    # Results Page
+    # st.title("Selected Faculties")
+    # st.subheader("Your Selection:")
+    # st.write(f"**Current Faculty:** {st.session_state.faculty_1}")
+    # st.write(f"**Interest Faculty:** {st.session_state.faculty_2}")
+
+    dict_transform = {
+        "College of Interdisciplinary Studies" : "cis",
+        "Science and Technology" : "sci",
+        "Sirindhorn International Institute of Technology" : "si",
+        "College of Innovation" : "inno",
+        "Thammasat School of Engineering" : "eng"
+    }
+
+    st.session_state.faculty_1 = dict_transform.get(st.session_state.faculty_1, "Unknown")
+    st.session_state.faculty_2 = dict_transform.get(st.session_state.faculty_2, "Unknown")
+    print(st.session_state.faculty_1,st.session_state.faculty_2)
+
+    filtered_row = df[df["faculty"] == st.session_state["faculty_1"]]
+    filtered_row2 = df[df["faculty"] == st.session_state["faculty_2"]]
+    # st.write(filtered_row)
+
+    matching_rows_curt = filtered_row[filtered_row['code'].apply(lambda x: any(x in sublist for sublist in filtered_row2['valid_pairs1']))]
+    filtered_row2['matches'] = filtered_row2['valid_pairs1'].apply(lambda x: any(code in x for code in filtered_row['code']))
+    filtered_row2 = filtered_row2[filtered_row2['matches'] == True]
     
-    # Text input to modify shared variable
-    shared_var = st.text_input('Set Shared Variable', key='z')
+    print(matching_rows_curt)
+    print("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
+    print("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
+    print("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
+    print("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
+    print("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
+    print(filtered_row2)
 
-    if 'shared_var' not in st.session_state:
-        st.session_state.shared_var = 'Initial Value'
-    elif st.session_state.z:
-        st.session_state.shared_var = st.session_state.z
+    #-----------------------------------------------------------chatgpt------------------------------------------------------#
     
-    # Update shared variable only if user entered a new value
-    if shared_var :
-        st.session_state.shared_var = shared_var 
-    
-    st.button('Go to Page 2', on_click=lambda: st.experimental_rerun())
+    size = len(matching_rows_curt)
+    # Iterate through matching rows directly
+    for index in range(size):
+        item = matching_rows_curt.iloc[index]
+        
+        # Current course information
+        current_code = item["code"]
+        valid_pairs1 = item.get("valid_pairs1", [])
 
-elif st.session_state.page == 'Page 2':
-    st.title('Page 2')
-    
-    # Access the shared variable
-    st.write('Shared Variable:', st.session_state.shared_var)
+        # Parse `valid_pairs1` if it's a string
+        if isinstance(valid_pairs1, str):
+            valid_pairs1 = ast.literal_eval(valid_pairs1)
+
+        # Filter rows based on valid pairs
+        filtered = filtered_row2[filtered_row2['code'].isin(valid_pairs1)]
+        
+        # Extract and format course codes
+        pattern = r'\b([a-z]{2,3}\d{3})(?:,\s*([a-z]{2,3}\d{3}))?\b'
+        formatted_matches = [
+            match[0] for match_list in filtered['code']
+            .apply(lambda x: re.findall(pattern, x) if isinstance(x, str) else [])
+            for match in match_list
+        ]
+
+
+
+        # Display course information
+        for i in formatted_matches:
+            courses = i.split(", ")
+            for course in courses:
+                st.subheader(f"{current_code}: {course}")
+                st.write(f"**Current description:** {item['description']}")
+
+                # Fetch and display transfer description
+                desc_transfer = filtered_row2[filtered_row2["code"] == course]["description"]
+                if not desc_transfer.empty:
+                    st.write(f"**Course transfer description:** {desc_transfer.iloc[0]}")
+                else:
+                    st.write("No course transfer description found.")
