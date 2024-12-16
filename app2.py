@@ -161,13 +161,14 @@ elif st.session_state["page"] == "results":
                     pattern = r'\b[a-z]{2,3}\d{3}\b'
                     matches = filtered_column_code.apply(lambda x: re.findall(pattern, x) if isinstance(x, str) else [])
                     text = ": "
+                    
                     matches_str = "; ".join([", ".join(match) for match in matches])                    #วิชาที่เทียบโอน
                     text_2 = cuurent_code + " : " + matches_str                                         #วิชาปัจจุบัน ที่เทียบโอน
                     
                     
                     st.subheader(text_2)
-                    st.write(f"**Description:** {item['description']}")
-                    st.write(f"**Description:** {filtered['description'].iloc[0]}")
+                    st.write(f"**Description:** {item['description']}")                                 #desc ของวิชาที่แรก
+                    st.write(f"**Description:** {filtered['description'].iloc[0]}")                     #desc ของวิชาที่สอง
                     # st.write(f"**Faculty:** {item['faculty']}")
                 index += 1
 
