@@ -6,12 +6,10 @@ import re
 df = pd.read_csv("final_1.csv",usecols=["code","description","faculty","valid_pairs1","valid_pairs2","valid_pairs3"])
 
 # Page Configuration
-st.set_page_config(
-    page_title="Faculty Selector",
-    page_icon="book",
-    layout="wide",
-    initial_sidebar_state="auto",
-)
+
+if "sidebar_state" not in st.session_state:
+    st.session_state.sidebar_state = "auto"  
+st.set_page_config(page_title="Multi Page App", layout="wide",page_icon="book", initial_sidebar_state=st.session_state.sidebar_state)
 
 # Initialize session state variables
 if "page" not in st.session_state:
@@ -47,6 +45,13 @@ faculty_data = {
 # if "page" in query_params:
 #     st.session_state["page"] = query_params["page"]
 
+def reset_app():
+    # Clear all session state variables
+    for key in st.session_state.keys():
+        del st.session_state[key]
+    # Redirect to the home page
+    st.session_state["page"] = "home"
+
 # Page Logic
 if st.session_state["page"] == "home":
     list_sub = list(faculty_data.keys())
@@ -79,6 +84,8 @@ if st.session_state["page"] == "home":
         if "faculty_2" not in st.session_state:
             st.session_state.faculty_2 = faculty_2
         st.session_state["page"] = "results"
+        st.session_state.sidebar_state = "collapsed" 
+
 
     # CSS for uniform box and image sizes
     st.markdown(
@@ -142,21 +149,13 @@ if st.session_state["page"] == "home":
             )
 
 
-
-
-
-
-
-
-
-
-
 elif st.session_state["page"] == "results":
     # Results Page
     # st.title("Selected Faculties")
     # st.subheader("Your Selection:")
     # st.write(f"**Current Faculty:** {st.session_state.faculty_1}")
     # st.write(f"**Interest Faculty:** {st.session_state.faculty_2}")
+    st.session_state.sidebar_state = "auto"
 
     dict_transform = {
         "College of Interdisciplinary Studies" : "cis",
@@ -174,6 +173,7 @@ elif st.session_state["page"] == "results":
     filtered_row2 = df[df["faculty"] == st.session_state["faculty_2"]]
     # st.write(filtered_row)
 
+    
     matching_rows_curt = filtered_row[filtered_row['code'].apply(lambda x: any(x in sublist for sublist in filtered_row2['valid_pairs1']))]
     filtered_row2['matches'] = filtered_row2['valid_pairs1'].apply(lambda x: any(code in x for code in filtered_row['code']))
     filtered_row2 = filtered_row2[filtered_row2['matches'] == True]
@@ -244,31 +244,35 @@ elif st.session_state["page"] == "results":
             unsafe_allow_html=True,
         )
     st.markdown(
-    """
-    <style>
-    .stMarkdown, .stText {
-        margin: 0; 
-        margin-bottom: 50 
-        padding: 20;  
-    }
-    </style>
-    """, 
-    unsafe_allow_html=True
+        """
+        <style>
+            /* Remove Streamlit default margin */
+            .stMarkdown, .stText {
+                margin: 0;
+                padding: 0;
+            }
+            /* Flex container for inline alignment */
+            .inline-text {
+                display: flex; 
+                justify-content: space-between;
+                align-items: center;
+                width: 100%; /* Use full width */
+            }
+        </style>
+        """, 
+        unsafe_allow_html=True
     )
+
+    # Inline text content
     st.markdown(
-    """
-    <div style="display: flex; align-items: center;">
-        <span style="margin-right: 645px;">Faculty 1 Course Code</span>
-        <span>Faculty 2 Course Code</span>
-    </div>
-    """, 
-    unsafe_allow_html=True
+        """
+        <div class="inline-text">
+            <span>Current Faculty Course Code</span>
+            <span>Interest Faculty Course Code</span>
+        </div>
+        """, 
+        unsafe_allow_html=True
     )
-    # matching course code by faculty_1 and faculty_2
-
-
-
-
 
 
 
@@ -306,37 +310,48 @@ elif st.session_state["page"] == "results":
 
     # Add CSS for hover effect
     st.markdown(
-        """
-        <style>
-        .pair-box {
-            display: flex;
-            align-items: center;
-            cursor: pointer;
-            transition: all 5.0s ease-in-out;
-            position: relative;
-        }
+    """
+    <style>
+    .pair-box {
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        transition: all 0.3s ease-in-out;
+    }
 
-        .hidden-description {
-            display: none;
-            opacity: 0;
-            transition: opacity 0.5s ease-in-out;
-            margin-top: 5px; /* Reduce this to decrease spacing */
-            padding: 5px; /* Smaller padding for a tighter look */
-            background: #f9f9f9;
-            border: 1px solid #e0e0e0;
-            border-radius: 5px;
-        }
+    .hidden-description {
+    display: none; /* Initially hidden */
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out;
+    margin-top: 5px;
+    padding: 15px;
+    background: #f9f9f9;
+    border: 1px solid #e0e0e0;
+    border-radius: 5px;
+    justify-content: space-between; /* Separates content */
+    gap: 100px;
+    }
 
-        .pair-box:hover + .hidden-description, 
-        .pair-box:hover ~ .hidden-description {
-            display: block;
-            opacity: 1;
-            transition: opacity 5.0s ease-in-out;
-            transform: translateY(0);
-        }
-        </style>
-        """,
-        unsafe_allow_html=True,
+    .pair-box:hover + .hidden-description {
+        display: flex; /* Reveal content on hover */
+        opacity: 1;
+    }
+
+    .divider {
+        height: 1.5px;
+        background-color: #d9d9d9;
+        margin: 10px 0;
+    }
+
+    .description-left,
+    .description-right {
+        flex: 1; /* Equal width for both sides */
+        font-size: 17px;
+        line-height: 1.5;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
     )
 
     # Iterate through rows and display data with hover effects
@@ -368,7 +383,7 @@ elif st.session_state["page"] == "results":
                             desc_transfer = filtered_row2[filtered_row2["code"] == course]["description"]
 
                         
-                            # Hidden description section revealed on hover
+                            # Markdown with flexbox for descriptions
                             col.markdown(
                                 f"""
                                 <div style="position: relative; border: 1px solid #ddd; padding: 15px; border-radius: 5px; background: #ffffff; font-family: Arial, sans-serif;">
@@ -382,19 +397,26 @@ elif st.session_state["page"] == "results":
                                             <i class="fa-regular fa-square-caret-down" style="font-size: 30px; color: gray; cursor: pointer;"></i>
                                         </span>
                                     </div>
-                                    <div class="hidden-description" style="margin-top: 2px; padding: 13px; background: #f9f9f9; border: 3px solid #e0e0e0; border-radius: 5px;">
-                                        <p style="margin: 3; font-size: 17px; line-height: 1.5;">
-                                            <strong>Current description:</strong> {item['description']}
-                                        </p>
-                                        <p style="margin: 10px 0 0 0; font-size: 17px; line-height: 1.5;">
-                                            <strong>Course transfer description:</strong> {desc_transfer.iloc[0] if not desc_transfer.empty else "No course transfer description found."}
-                                        </p>
+                                    <div class="hidden-description">
+                                        <!-- Left Side Description -->
+                                        <div class="description-left">
+                                            <strong>{item["code"]} course description</strong> 
+                                            <div class="divider"></div>
+                                            <p>{item['description']}<p>
+                                        </div>
+                                        <!-- Right Side Description -->
+                                        <div class="description-right">
+                                            <strong>{course} course description</strong> 
+                                            <div class="divider"></div>
+                                            <p>{desc_transfer.iloc[0] if not desc_transfer.empty else "No course transfer description found."}</p>
+                                        </div>
                                     </div>
                                 </div>
                                 """,
                                 unsafe_allow_html=True,
                             )
-
                 
                 index += 1
-
+    with st.sidebar:
+        if st.button("Back to Home"):
+            reset_app()

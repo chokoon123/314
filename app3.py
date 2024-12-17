@@ -80,20 +80,76 @@ if st.session_state["page"] == "home":
             st.session_state.faculty_2 = faculty_2
         st.session_state["page"] = "results"
 
-    # Display faculties
+    # CSS for uniform box and image sizes
+    st.markdown(
+        """
+        <style>
+        .faculty-box {
+            border: 2px solid #d9d9d9;
+            border-radius: 15px;
+            padding: 15px;
+            text-align: center;
+            margin-bottom: 15px;
+            box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
+            width: 300px; /* Fixed width for uniform box size */
+            height: 400px; /* Fixed height for uniform box size */
+            display: inline-block;
+            vertical-align: top;
+        }
+        .faculty-image {
+            border-radius: 10px;
+            align-items: center;
+            width: 200px; /* Fixed width for uniform image size */
+            height: 200px; /* Fixed height for uniform image size */
+            object-fit: fit; /* Ensures images maintain aspect ratio */
+            margin-bottom: 10px;
+        }
+        .divider {
+            height: 1.5px;
+            background-color: #d9d9d9;
+            margin: 10px 0;
+        }
+        .faculty-name {
+            font-size: 20px;
+            font-weight: bold;
+            margin: 10px 0;
+            color: #333;
+        }
+        a {
+            text-decoration: none;
+            color: #007BFF;
+            font-weight: bold;  
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    # Display faculties in consistent boxes
     cols = st.columns(3)
     for i, (faculty, data) in enumerate(faculty_data.items()):
-        with cols[i % 3]:
+        with cols[i % 3]:  # Ensure wrapping after every 3 items
             st.markdown(
                 f"""
                 <div class="faculty-box">
                     <img src="{data['image']}" alt="{faculty}" class="faculty-image" />
-                    <h4>{faculty}</h4>
-                    <a href="{data['website']}" target="_blank">Visit {faculty} Website</a>
+                    <div class="faculty-name">{faculty}</div>
+                    <div class="divider"></div>
+                    <a href="{data['website']}" target="_blank">Visit Website</a>
                 </div>
                 """,
                 unsafe_allow_html=True,
             )
+
+
+
+
+
+
+
+
+
+
 
 elif st.session_state["page"] == "results":
     # Results Page
@@ -112,7 +168,7 @@ elif st.session_state["page"] == "results":
 
     st.session_state.faculty_1 = dict_transform.get(st.session_state.faculty_1, "Unknown")
     st.session_state.faculty_2 = dict_transform.get(st.session_state.faculty_2, "Unknown")
-    print(st.session_state.faculty_1,st.session_state.faculty_2)
+    # print(st.session_state.faculty_1,st.session_state.faculty_2)
 
     filtered_row = df[df["faculty"] == st.session_state["faculty_1"]]
     filtered_row2 = df[df["faculty"] == st.session_state["faculty_2"]]
@@ -130,44 +186,208 @@ elif st.session_state["page"] == "results":
     print("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
     print(filtered_row2)
 
-    #-----------------------------------------------------------chatgpt------------------------------------------------------#
+    reverse_dict_transform = {v: k for k, v in dict_transform.items()}
+    # Transform back to original
+    st.session_state.faculty_1_origin = reverse_dict_transform.get(st.session_state.faculty_1, "Unknown")
+    st.session_state.faculty_2_origin = reverse_dict_transform.get(st.session_state.faculty_2, "Unknown")
+
+    st.title("Thammasat University Credit Bank")
+    st.markdown(
+        """
+        <style>
+        .faculty-1-box {
+            border: 2px solid #d9d9d9;
+            border-radius: 50px;
+            padding: 15px;
+            text-align: center;
+            margin-bottom: 15px;
+            box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
+            width: 660px; /* Fixed width for uniform box size */
+            height: 60px; /* Fixed height for uniform box size */
+            display: inline-block;
+            vertical-align: top;
+            background-color: #C30E2F;
+        }
+        .faculty-2-box {
+            border: 2px solid #d9d9d9;
+            border-radius: 50px;
+            padding: 15px;
+            text-align: center;
+            margin-bottom: 15px;
+            box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
+            width: 660px; /* Fixed width for uniform box size */
+            height: 60px; /* Fixed height for uniform box size */
+            display: inline-block;
+            vertical-align: top;
+            background-color: #FBD13F;
+        """,
+        unsafe_allow_html=True,
+    )
     
+    col1, col2 = st.columns(2)
+    with col1:
+        st.markdown(
+            f"""
+            <div class="faculty-1-box">
+                <h5 style="color: white;">{st.session_state.faculty_1_origin}</h5>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+    with col2:
+        st.markdown(
+            f"""
+            <div class="faculty-2-box ">
+                <h5 style="color: black;">{st.session_state.faculty_2_origin}</h5>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+    st.markdown(
+    """
+    <style>
+    .stMarkdown, .stText {
+        margin: 0; 
+        margin-bottom: 50 
+        padding: 20;  
+    }
+    </style>
+    """, 
+    unsafe_allow_html=True
+    )
+    st.markdown(
+    """
+    <div style="display: flex; align-items: center;">
+        <span style="margin-right: 645px;">Current Faculty Course Code</span>
+        <span>Interest Faculty Course Code</span>
+    </div>
+    """, 
+    unsafe_allow_html=True
+    )
+    # matching course code by faculty_1 and faculty_2
+
+
     size = len(matching_rows_curt)
-    # Iterate through matching rows directly
-    for index in range(size):
-        item = matching_rows_curt.iloc[index]
-        
-        # Current course information
-        current_code = item["code"]
-        valid_pairs1 = item.get("valid_pairs1", [])
+    rows_needed = (size + 2) // 1
 
-        # Parse `valid_pairs1` if it's a string
-        if isinstance(valid_pairs1, str):
-            valid_pairs1 = ast.literal_eval(valid_pairs1)
+    rows = []
+    for _ in range(rows_needed):
+        rows.append(st.columns(1))
 
-        # Filter rows based on valid pairs
-        filtered = filtered_row2[filtered_row2['code'].isin(valid_pairs1)]
-        
-        # Extract and format course codes
-        pattern = r'\b([a-z]{2,3}\d{3})(?:,\s*([a-z]{2,3}\d{3}))?\b'
-        formatted_matches = [
-            match[0] for match_list in filtered['code']
-            .apply(lambda x: re.findall(pattern, x) if isinstance(x, str) else [])
-            for match in match_list
-        ]
+    st.markdown(
+        """
+        <link rel="stylesheet" 
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+        <style>
+        .pair-box {
+            border: 2px solid #d9d9d9;
+            border-radius: 15px;
+            padding: 15px;
+            text-align: justify;
+            margin-bottom: 15px;
+            box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
+            width: 1350px; /* Fixed width for uniform box size */
+            height: 100px; /* Fixed height for uniform box size */
+            display: inline-block;
+            vertical-align: top;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
 
 
+    # Add CSS for hover effect
+    st.markdown(
+        """
+        <style>
+        .pair-box {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: all 5.0s ease-in-out;
+            position: relative;
+        }
 
-        # Display course information
-        for i in formatted_matches:
-            courses = i.split(", ")
-            for course in courses:
-                st.subheader(f"{current_code}: {course}")
-                st.write(f"**Current description:** {item['description']}")
+        .hidden-description {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+            margin-top: 5px; /* Reduce this to decrease spacing */
+            padding: 5px; /* Smaller padding for a tighter look */
+            background: #f9f9f9;
+            border: 1px solid #e0e0e0;
+            border-radius: 5px;
 
-                # Fetch and display transfer description
-                desc_transfer = filtered_row2[filtered_row2["code"] == course]["description"]
-                if not desc_transfer.empty:
-                    st.write(f"**Course transfer description:** {desc_transfer.iloc[0]}")
-                else:
-                    st.write("No course transfer description found.")
+        }
+
+        .pair-box:hover + .hidden-description, 
+        .pair-box:hover ~ .hidden-description {
+            display: block;
+            opacity: 1;
+            transition: opacity 5.0s ease-in-out;
+            transform: translateY(0);
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    # Iterate through rows and display data with hover effects
+    index = 0  
+    for row in rows:
+        for col in row:
+            if index < size:  
+                item = matching_rows_curt.iloc[index]
+                with col:
+                    # Extract data
+                    current_code = item["code"]  # Current course code
+                    valid_pairs1 = item["valid_pairs1"]
+                    if isinstance(valid_pairs1, str):
+                        valid_pairs1 = ast.literal_eval(valid_pairs1)
+                    filtered = filtered_row2[filtered_row2['code'].isin(valid_pairs1)]
+
+                    # Find matching codes
+                    filtered_column_code = filtered['code']
+                    pattern = r'\b[a-z]{2,3}\d{3}\b'
+                    matches = filtered_column_code.apply(lambda x: re.findall(pattern, x) if isinstance(x, str) else [])
+                    formatted_matches = []
+                    for match in matches:
+                        formatted_matches.append(match[0])
+                    
+                    for i in formatted_matches:
+                        courses = i.split(", ")  
+                        for course in courses:
+                            text_2_show = f"{current_code}: {course}"
+                            desc_transfer = filtered_row2[filtered_row2["code"] == course]["description"]
+
+                        
+                            # Hidden description section revealed on hover
+                            col.markdown(
+                                f"""
+                                <div style="position: relative; border: 1px solid #ddd; padding: 15px; border-radius: 5px; background: #ffffff; font-family: Arial, sans-serif;">
+                                    <div class="pair-box" style="display: flex; align-items: center; justify-content: space-between; gap: 12px;">
+                                        <span style="flex: 1; font-size: 30px; font-weight: bold; text-align: left;">{item["code"]}</span>
+                                        <span style="flex: 0; margin: 0 40px;">
+                                            <i class="fa-solid fa-arrow-right-arrow-left" style="font-size: 30px; color: gray;"></i>
+                                        </span>
+                                        <span style="flex: 1; font-size: 30px; font-weight: bold; text-align: right;">{course}</span>
+                                        <span>
+                                            <i class="fa-regular fa-square-caret-down" style="font-size: 30px; color: gray; cursor: pointer;"></i>
+                                        </span>
+                                    </div>
+                                    <div class="hidden-description" style="margin-top: 2px; padding: 13px; background: #f9f9f9; border: 3px solid #e0e0e0; border-radius: 5px;">
+                                        <p style="margin: 3; font-size: 17px; line-height: 1.5;">
+                                            <strong>Current description:</strong> {item['description']}
+                                        </p>
+                                        <p style="margin: 10px 0 0 0; font-size: 17px; line-height: 1.5;">
+                                            <strong>Course transfer description:</strong> {desc_transfer.iloc[0] if not desc_transfer.empty else "No course transfer description found."}
+                                        </p>
+                                    </div>
+                                </div>
+                                """,
+                                unsafe_allow_html=True,
+                            )
+
+                
+                index += 1
