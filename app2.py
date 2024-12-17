@@ -141,6 +141,16 @@ if st.session_state["page"] == "home":
                 unsafe_allow_html=True,
             )
 
+
+
+
+
+
+
+
+
+
+
 elif st.session_state["page"] == "results":
     # Results Page
     # st.title("Selected Faculties")
@@ -176,13 +186,11 @@ elif st.session_state["page"] == "results":
     print("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
     print(filtered_row2)
 
-    # Reverse the dictionary to get the original values back
     reverse_dict_transform = {v: k for k, v in dict_transform.items()}
     # Transform back to original
     st.session_state.faculty_1_origin = reverse_dict_transform.get(st.session_state.faculty_1, "Unknown")
     st.session_state.faculty_2_origin = reverse_dict_transform.get(st.session_state.faculty_2, "Unknown")
 
-# Page 2: matching course code
     st.title("Thammasat University Credit Bank")
     st.markdown(
         """
@@ -236,35 +244,50 @@ elif st.session_state["page"] == "results":
             unsafe_allow_html=True,
         )
     st.markdown(
-    """
-    <style>
-    .stMarkdown, .stText {
-        margin: 0; 
-        margin-bottom: 50 
-        padding: 20;  
-    }
-    </style>
-    """, 
-    unsafe_allow_html=True
+        """
+        <style>
+            /* Remove Streamlit default margin */
+            .stMarkdown, .stText {
+                margin: 0;
+                padding: 0;
+            }
+            /* Flex container for inline alignment */
+            .inline-text {
+                display: flex; 
+                justify-content: space-between;
+                align-items: center;
+                width: 100%; /* Use full width */
+            }
+        </style>
+        """, 
+        unsafe_allow_html=True
     )
+
+    # Inline text content
     st.markdown(
-    """
-    <div style="display: flex; align-items: center;">
-        <span style="margin-right: 645px;">Faculty 1 Course Code</span>
-        <span>Faculty 2 Course Code</span>
-    </div>
-    """, 
-    unsafe_allow_html=True
+        """
+        <div class="inline-text">
+            <span>Current Faculty Course Code</span>
+            <span>Interest Faculty Course Code</span>
+        </div>
+        """, 
+        unsafe_allow_html=True
     )
-# matching course code by faculty_1 and faculty_2
+
+
+
+
+
+
+
+
     size = len(matching_rows_curt)
-    rows_needed = (size + 2) // 3  
+    rows_needed = (size + 2) // 1
 
     rows = []
     for _ in range(rows_needed):
         rows.append(st.columns(1))
 
-    # CSS for uniform box and image sizes
     st.markdown(
         """
         <link rel="stylesheet" 
@@ -286,87 +309,114 @@ elif st.session_state["page"] == "results":
         """,
         unsafe_allow_html=True,
     )
+    
 
+
+    # Add CSS for hover effect
+    st.markdown(
+    """
+    <style>
+    .pair-box {
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        transition: all 0.3s ease-in-out;
+    }
+
+    .hidden-description {
+        display: none;
+        opacity: 0;
+        transition: opacity 0.5s ease-in-out;
+        margin-top: 5px;
+        padding: 15px;
+        background: #f9f9f9;
+        border: 1px solid #e0e0e0;
+        border-radius: 5px;
+        display: flex;
+        justify-content: space-between; /* Separates content to left and right */
+        gap: 100px; /* Space between the two descriptions */
+    }
+
+    .pair-box:hover + .hidden-description {
+        display: flex; /* Reveal content on hover */
+        opacity: 1;
+    }
+
+    .divider {
+        height: 1.5px;
+        background-color: #d9d9d9;
+        margin: 10px 0;
+
+    .description-left, .description-right {
+        flex: 1; /* Equal width for both sides */
+        font-size: 17px;
+        line-height: 1.5;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+    )
+
+    # Iterate through rows and display data with hover effects
     index = 0  
     for row in rows:
         for col in row:
             if index < size:  
-
                 item = matching_rows_curt.iloc[index]
+                with col:
+                    # Extract data
+                    current_code = item["code"]  # Current course code
+                    valid_pairs1 = item["valid_pairs1"]
+                    if isinstance(valid_pairs1, str):
+                        valid_pairs1 = ast.literal_eval(valid_pairs1)
+                    filtered = filtered_row2[filtered_row2['code'].isin(valid_pairs1)]
 
-                current_code = item["code"]                                                         #วิชาปัจจุบัน
+                    # Find matching codes
+                    filtered_column_code = filtered['code']
+                    pattern = r'\b[a-z]{2,3}\d{3}\b'
+                    matches = filtered_column_code.apply(lambda x: re.findall(pattern, x) if isinstance(x, str) else [])
+                    formatted_matches = []
+                    for match in matches:
+                        formatted_matches.append(match[0])
+                    
+                    for i in formatted_matches:
+                        courses = i.split(", ")  
+                        for course in courses:
+                            text_2_show = f"{current_code}: {course}"
+                            desc_transfer = filtered_row2[filtered_row2["code"] == course]["description"]
+
                         
-                valid_pairs1 = item["valid_pairs1"]                                                 
-                if isinstance(valid_pairs1, str):
-                    valid_pairs1 = ast.literal_eval(valid_pairs1) 
-                filtered = filtered_row2[filtered_row2['code'].isin(valid_pairs1)]
+                            # Markdown with flexbox for descriptions
+                            col.markdown(
+                                f"""
+                                <div style="position: relative; border: 1px solid #ddd; padding: 15px; border-radius: 5px; background: #ffffff; font-family: Arial, sans-serif;">
+                                    <div class="pair-box" style="display: flex; align-items: center; justify-content: space-between; gap: 12px;">
+                                        <span style="flex: 1; font-size: 30px; font-weight: bold; text-align: left;">{item["code"]}</span>
+                                        <span style="flex: 0; margin: 0 40px;">
+                                            <i class="fa-solid fa-arrow-right-arrow-left" style="font-size: 30px; color: gray;"></i>
+                                        </span>
+                                        <span style="flex: 1; font-size: 30px; font-weight: bold; text-align: right;">{course}</span>
+                                        <span>
+                                            <i class="fa-regular fa-square-caret-down" style="font-size: 30px; color: gray; cursor: pointer;"></i>
+                                        </span>
+                                    </div>
+                                    <div class="hidden-description">
+                                        <!-- Left Side Description -->
+                                        <div class="description-left">
+                                            <strong>{item["code"]} course description</strong> 
+                                            <div class="divider"></div>
+                                            <p>{item['description']}<p>
+                                        </div>
+                                        <!-- Right Side Description -->
+                                        <div class="description-right">
+                                            <strong>{course} course description</strong> 
+                                            <div class="divider"></div>
+                                            <p>{desc_transfer.iloc[0] if not desc_transfer.empty else "No course transfer description found."}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                """,
+                                unsafe_allow_html=True,
+                            )
                 
-
-                filtered_column_code = filtered['code']
-                # print(filtered_column_code)
-                # print(type(filtered_column_code))
-                pattern = r'\b[a-z]{2,3}\d{3}\b'
-                matches = filtered_column_code.apply(lambda x: re.findall(pattern, x) if isinstance(x, str) else [])
-                text = ": "
-                        
-                matches_str = "; ".join([", ".join(match) for match in matches])                    #วิชาที่เทียบโอน
-                text_2 = current_code + " : " + matches_str                                         #วิชาปัจจุบัน ที่เทียบโอน
-
-            with col:
-                # Header
-                st.markdown(
-                    f"""
-                    <div class="pair-box" style="display: flex; align-items: center;">
-                        <span style="width: 300px; font-size: 35px; font-weight: bold; text-align: left;">{item["code"]}</span>
-                        <span style="margin: 0 170px;">
-                            <i class="fa-solid fa-arrow-right-arrow-left" style="font-size: 35px; color: gray;"></i>
-                        </span>
-                        <span style="font-size: 35px; font-weight: bold; text-align: left; margin: 0 100px;">{matches_str}</span>
-                        <span style="margin-left: auto;"><i class="fa-regular fa-square-caret-down" style="font-size: 35px; color: gray;"></i></span>
-                    </div>
-                    """,
-                    unsafe_allow_html=True,
-                )
                 index += 1
-
-
-
-    # matching_rows_current = filtered_row2[common_values]
-    # st.write("Matching Rows:")
-    # st.write(matching_rows_current)
-    
-
-
-    # Faculty Details
-    # if faculty_1 and faculty_1 in faculty_data:
-    # data = faculty_data[st.session_state.faculty_1]
-    # st.markdown(
-    #     f"""
-    #     <div class="faculty-box">
-    #         <img src="{data['image']}" alt="{st.session_state.faculty_1}" class="faculty-image" />
-    #         <h4>{st.session_state.faculty_1}</h4>
-    #         <a href="{data['website']}" target="_blank">Visit {st.session_state.faculty_1} Website</a>
-    #     </div>
-    #     """,
-    #     unsafe_allow_html=True,
-    # )
-
-    # # if faculty_2 and faculty_2 in faculty_data:
-    # data = faculty_data[st.session_state.faculty_2]
-    # st.markdown(
-    #     f"""
-    #     <div class="faculty-box">
-    #         <img src="{data['image']}" alt="{st.session_state.faculty_2}" class="faculty-image" />
-    #         <h4>{st.session_state.faculty_2}</h4>
-    #         <a href="{data['website']}" target="_blank">Visit {st.session_state.faculty_2} Website</a>
-    #     </div>
-    #     """,
-    #     unsafe_allow_html=True,
-    # )
-
-    # Back to Home Button
-    # if st.button("Go Back"):
-    #     st.session_state["page"] = "home"
-        # st.query_params.update(page="home")
-    
-
