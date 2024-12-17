@@ -275,8 +275,6 @@ elif st.session_state["page"] == "results":
     )
 
 
-
-
     size = len(matching_rows_curt)
     rows_needed = (size + 2) // 1
 
@@ -305,54 +303,6 @@ elif st.session_state["page"] == "results":
         """,
         unsafe_allow_html=True,
     )
-    
-
-
-    # Add CSS for hover effect
-    st.markdown(
-    """
-    <style>
-    .pair-box {
-        display: flex;
-        align-items: center;
-        cursor: pointer;
-        transition: all 0.3s ease-in-out;
-    }
-
-    .hidden-description {
-    display: none; /* Initially hidden */
-    opacity: 0;
-    transition: opacity 0.5s ease-in-out;
-    margin-top: 5px;
-    padding: 15px;
-    background: #f9f9f9;
-    border: 1px solid #e0e0e0;
-    border-radius: 5px;
-    justify-content: space-between; /* Separates content */
-    gap: 100px;
-    }
-
-    .pair-box:hover + .hidden-description {
-        display: flex; /* Reveal content on hover */
-        opacity: 1;
-    }
-
-    .divider {
-        height: 1.5px;
-        background-color: #d9d9d9;
-        margin: 10px 0;
-    }
-
-    .description-left,
-    .description-right {
-        flex: 1; /* Equal width for both sides */
-        font-size: 17px;
-        line-height: 1.5;
-    }
-    </style>
-    """,
-    unsafe_allow_html=True,
-    )
 
     # Iterate through rows and display data with hover effects
     index = 0  
@@ -360,13 +310,15 @@ elif st.session_state["page"] == "results":
         for col in row:
             if index < size:  
                 item = matching_rows_curt.iloc[index]
+
                 with col:
                     # Extract data
                     current_code = item["code"]  # Current course code
-                    valid_pairs1 = item["valid_pairs1"]
-                    if isinstance(valid_pairs1, str):
-                        valid_pairs1 = ast.literal_eval(valid_pairs1)
-                    filtered = filtered_row2[filtered_row2['code'].isin(valid_pairs1)]
+
+                    current_code_valid_pairs = item["valid_pairs1"]
+                    if isinstance(current_code_valid_pairs, str):
+                        current_code_valid_pairs = ast.literal_eval(current_code_valid_pairs)
+                    filtered = filtered_row2[filtered_row2['code'].isin(current_code_valid_pairs)]
 
                     # Find matching codes
                     filtered_column_code = filtered['code']
@@ -384,36 +336,84 @@ elif st.session_state["page"] == "results":
 
                         
                             # Markdown with flexbox for descriptions
-                            col.markdown(
-                                f"""
-                                <div style="position: relative; border: 1px solid #ddd; padding: 15px; border-radius: 5px; background: #ffffff; font-family: Arial, sans-serif;">
-                                    <div class="pair-box" style="display: flex; align-items: center; justify-content: space-between; gap: 12px;">
-                                        <span style="flex: 1; font-size: 30px; font-weight: bold; text-align: left;">{item["code"]}</span>
-                                        <span style="flex: 0; margin: 0 40px;">
-                                            <i class="fa-solid fa-arrow-right-arrow-left" style="font-size: 30px; color: gray;"></i>
-                                        </span>
-                                        <span style="flex: 1; font-size: 30px; font-weight: bold; text-align: right;">{course}</span>
-                                        <span>
-                                            <i class="fa-regular fa-square-caret-down" style="font-size: 30px; color: gray; cursor: pointer;"></i>
-                                        </span>
-                                    </div>
-                                    <div class="hidden-description">
-                                        <!-- Left Side Description -->
-                                        <div class="description-left">
-                                            <strong>{item["code"]} course description</strong> 
-                                            <div class="divider"></div>
-                                            <p>{item['description']}<p>
+                            with col:
+                                st.markdown(
+                                    f"""
+                                    <div style="position: relative; border: 1px solid #ddd; padding: 15px; border-radius: 5px; background: #ffffff; font-family: Arial, sans-serif;">
+                                        <div class="pair-box" style="display: flex; align-items: center; justify-content: space-between; gap: 12px;">
+                                            <span style="flex: 1; font-size: 30px; font-weight: bold; text-align: left;">{item["code"]}</span>
+                                            <span style="flex: 0; margin: 0 40px;">
+                                                <i class="fa-solid fa-arrow-right-arrow-left" style="font-size: 30px; color: gray;"></i>
+                                            </span>
+                                            <span style="flex: 1; font-size: 30px; font-weight: bold; text-align: right;">{course}</span>
+                                            <span>
+                                                <i class="fa-regular fa-square-caret-down" style="font-size: 30px; color: gray; cursor: pointer;"></i>
+                                            </span>
                                         </div>
-                                        <!-- Right Side Description -->
-                                        <div class="description-right">
-                                            <strong>{course} course description</strong> 
-                                            <div class="divider"></div>
-                                            <p>{desc_transfer.iloc[0] if not desc_transfer.empty else "No course transfer description found."}</p>
+                                        <div class="hidden-description">
+                                            <!-- Left Side Description -->
+                                            <div class="description-left">
+                                                <strong>{item["code"]} course description</strong> 
+                                                <div class="divider"></div>
+                                                <p>{item['description']}<p>
+                                            </div>
+                                            <!-- Right Side Description -->
+                                            <div class="description-right">
+                                                <strong>{course} course description</strong> 
+                                                <div class="divider"></div>
+                                                <p>{desc_transfer.iloc[0] if not desc_transfer.empty else "No course transfer description found."}</p>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                                """,
-                                unsafe_allow_html=True,
+                                    """,
+                                    unsafe_allow_html=True,
+                                )
+                           
+                            # Add CSS for hover effect
+                            st.markdown(
+                            """
+                            <style>
+                            .pair-box {
+                                display: flex;
+                                align-items: center;
+                                cursor: pointer;
+                                transition: all 0.3s ease-in-out;
+                            }
+
+                            .hidden-description {
+                            display: none; /* Initially hidden */
+                            opacity: 0;
+                            transition: opacity 0.5s ease-in-out;
+                            margin-top: 5px;
+                            padding: 15px;
+                            background: #f9f9f9;
+                            border: 1px solid #e0e0e0;
+                            border-radius: 5px;
+                            justify-content: space-between; /* Separates content */
+                            gap: 100px;
+                            }
+
+                            .pair-box:hover + .hidden-description {
+                                display: flex; /* Reveal content on hover */
+                                opacity: 1;
+                            }
+
+                            .divider {
+                                height: 1.5px;
+                                background-color: #d9d9d9;
+                                margin: 10px 0;
+                            }
+
+                            .description-left,
+                            .description-right {
+                                flex: 1; /* Equal width for both sides */
+                                font-size: 17px;
+                                line-height: 1.5;
+                            }
+                            </style>
+
+                            """,
+                            unsafe_allow_html=True,
                             )
                 
                 index += 1
