@@ -3,7 +3,7 @@ import ast
 import pandas as pd
 import re
 
-df = pd.read_csv("final_2.csv",usecols=["code","description","faculty","valid_pairs1_65","valid_pairs2","valid_pairs3"])
+df = pd.read_csv("final_pairs.csv",usecols=["code","description","faculty","valid_pairs1_65"])
 
 # Page Configuration
 
