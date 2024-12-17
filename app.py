@@ -3,7 +3,7 @@ import ast
 import pandas as pd
 import re
 
-df = pd.read_csv("final_1.csv",usecols=["code","description","faculty","valid_pairs1","valid_pairs2","valid_pairs3"])
+df = pd.read_csv("final_2.csv",usecols=["code","description","faculty","valid_pairs1_65","valid_pairs2","valid_pairs3"])
 
 # Page Configuration
 
@@ -174,8 +174,8 @@ elif st.session_state["page"] == "results":
     # st.write(filtered_row)
 
     
-    matching_rows_curt = filtered_row[filtered_row['code'].apply(lambda x: any(x in sublist for sublist in filtered_row2['valid_pairs1']))]
-    filtered_row2['matches'] = filtered_row2['valid_pairs1'].apply(lambda x: any(code in x for code in filtered_row['code']))
+    matching_rows_curt = filtered_row[filtered_row['code'].apply(lambda x: any(x in sublist for sublist in filtered_row2['valid_pairs1_65']))]
+    filtered_row2['matches'] = filtered_row2['valid_pairs1_65'].apply(lambda x: any(code in x for code in filtered_row['code']))
     filtered_row2 = filtered_row2[filtered_row2['matches'] == True]
     
     print(matching_rows_curt)
@@ -315,7 +315,7 @@ elif st.session_state["page"] == "results":
                     # Extract data
                     current_code = item["code"]  # Current course code
 
-                    current_code_valid_pairs = item["valid_pairs1"]
+                    current_code_valid_pairs = item["valid_pairs1_65"]
                     if isinstance(current_code_valid_pairs, str):
                         current_code_valid_pairs = ast.literal_eval(current_code_valid_pairs)
                     filtered = filtered_row2[filtered_row2['code'].isin(current_code_valid_pairs)]
