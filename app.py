@@ -9,7 +9,7 @@ df = pd.read_csv("final_2.csv",usecols=["code","description","faculty","valid_pa
 
 if "sidebar_state" not in st.session_state:
     st.session_state.sidebar_state = "auto"  
-st.set_page_config(page_title="Multi Page App", layout="wide",page_icon="book", initial_sidebar_state=st.session_state.sidebar_state)
+st.set_page_config(page_title="Thammasat-Credit-Bank", layout="wide",page_icon="book", initial_sidebar_state=st.session_state.sidebar_state)
 
 # Initialize session state variables
 if "page" not in st.session_state:
