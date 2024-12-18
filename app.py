@@ -3,9 +3,8 @@ import ast
 import pandas as pd
 import re
 
-df = pd.read_csv("data_pairs.csv",usecols=["code","description","faculty","valid_pairs1_65"])
+df = pd.read_csv("data_pairs.csv",usecols=["code","description","faculty","valid_pairs3_85"])
 
-# Page Configuration
 
 if "sidebar_state" not in st.session_state:
     st.session_state.sidebar_state = "auto"  
@@ -72,7 +71,6 @@ if st.session_state["page"] == "home":
         "Choose your interest faculty",
         list_sub,
         key="faculty_2",
-
     )
 
     # Button to proceed to the results page
@@ -164,7 +162,6 @@ elif st.session_state["page"] == "results":
         "College of Innovation" : "inno",
         "Thammasat School of Engineering" : "eng"
     }
-
     st.session_state.faculty_1 = dict_transform.get(st.session_state.faculty_1, "Unknown")
     st.session_state.faculty_2 = dict_transform.get(st.session_state.faculty_2, "Unknown")
     # print(st.session_state.faculty_1,st.session_state.faculty_2)
@@ -174,8 +171,8 @@ elif st.session_state["page"] == "results":
     # st.write(filtered_row)
 
     
-    matching_rows_curt = filtered_row[filtered_row['code'].apply(lambda x: any(x in sublist for sublist in filtered_row2['valid_pairs1_65']))]
-    filtered_row2['matches'] = filtered_row2['valid_pairs1_65'].apply(lambda x: any(code in x for code in filtered_row['code']))
+    matching_rows_curt = filtered_row[filtered_row['code'].apply(lambda x: any(x in sublist for sublist in filtered_row2['valid_pairs3_85']))]
+    filtered_row2['matches'] = filtered_row2['valid_pairs3_85'].apply(lambda x: any(code in x for code in filtered_row['code']))
     filtered_row2 = filtered_row2[filtered_row2['matches'] == True]
     
     print(matching_rows_curt)
@@ -315,7 +312,7 @@ elif st.session_state["page"] == "results":
                     # Extract data
                     current_code = item["code"]  # Current course code
 
-                    current_code_valid_pairs = item["valid_pairs1_65"]
+                    current_code_valid_pairs = item["valid_pairs3_85"]
                     if isinstance(current_code_valid_pairs, str):
                         current_code_valid_pairs = ast.literal_eval(current_code_valid_pairs)
                     filtered = filtered_row2[filtered_row2['code'].isin(current_code_valid_pairs)]
