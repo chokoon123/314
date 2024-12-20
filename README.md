@@ -1,5 +1,1 @@
-<<<<<<< HEAD
-# This is 314 project
-=======
-
->>>>>>> c78a0af504189f671b6a2f4d76fc3cc10c8d7006
+# Analysis of Course Consistency as a Guideline for Credit Transfer in a Credit Bank System for Thammasat University
