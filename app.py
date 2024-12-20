@@ -14,7 +14,6 @@ st.set_page_config(page_title="Thammasat-Credit-Bank", layout="wide",page_icon="
 if "page" not in st.session_state:
     st.session_state.page = "home"
 
-
 # Faculty Data
 faculty_data = {
     "College of Interdisciplinary Studies": {
@@ -39,10 +38,6 @@ faculty_data = {
     },
 }
 
-# Handle Query Params for Navigation
-# query_params = st.query_params
-# if "page" in query_params:
-#     st.session_state["page"] = query_params["page"]
 
 def reset_app():
     # Clear all session state variables
@@ -148,11 +143,7 @@ if st.session_state["page"] == "home":
 
 
 elif st.session_state["page"] == "results":
-    # Results Page
-    # st.title("Selected Faculties")
-    # st.subheader("Your Selection:")
-    # st.write(f"**Current Faculty:** {st.session_state.faculty_1}")
-    # st.write(f"**Interest Faculty:** {st.session_state.faculty_2}")
+
     st.session_state.sidebar_state = "auto"
 
     dict_transform = {
@@ -164,11 +155,9 @@ elif st.session_state["page"] == "results":
     }
     st.session_state.faculty_1 = dict_transform.get(st.session_state.faculty_1, "Unknown")
     st.session_state.faculty_2 = dict_transform.get(st.session_state.faculty_2, "Unknown")
-    # print(st.session_state.faculty_1,st.session_state.faculty_2)
 
     filtered_row = df[df["faculty"] == st.session_state["faculty_1"]]
     filtered_row2 = df[df["faculty"] == st.session_state["faculty_2"]]
-    # st.write(filtered_row)
 
     
     matching_rows_curt = filtered_row[filtered_row['code'].apply(lambda x: any(x in sublist for sublist in filtered_row2['valid_pairs3_85']))]
